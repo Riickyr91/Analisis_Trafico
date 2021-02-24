@@ -1,4 +1,7 @@
 function [plantillaElegida] = encuadrarImagen(I,ifondo, numPixeles)
+% Busca la mejor opción entre plantilla calculada automaticamente y la
+% imagen pasada de fondo junto a la imagen a procesar. Desplazando la
+% imagen para obtener el mejor resultado.
 
     [f c m] = size(ifondo);
     

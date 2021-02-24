@@ -1,5 +1,5 @@
 function [disponible] = camDisponible(I)
-
+% Devuelve true si la imagen pasada es NoDisponible
     %Leo la imagen plantilla de no disponible
     IPredefinida = imread('D:\Imagenes_TFG\NO_DISPONIBLE\NO_DISPONIBLE.jpg');
     

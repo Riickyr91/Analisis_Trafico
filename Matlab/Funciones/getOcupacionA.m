@@ -1,5 +1,6 @@
-function [M , pElegida] = getOcupacionA(plantilla, ifondo, I);
-
+function [M] = getOcupacionA(plantilla, ifondo, I);
+% Dada una serie de plantillas, un fondo y la imagen, obtiene la plantilla
+% que mas se adapta a la imagen actual y calcula la ocupación.
     [f c p] = size(plantilla);
     
     ocupacion = zeros(1,p);
@@ -73,7 +74,6 @@ function [M , pElegida] = getOcupacionA(plantilla, ifondo, I);
     end
     
     M = max(ocupacion(:));
-    pElegida = plantilla(:,:,M==ocupacion);
     
 end
 
