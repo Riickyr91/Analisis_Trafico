@@ -7,7 +7,7 @@ addpath(genpath('D:\Imagenes_TFG'));
 addpath('../Funciones');
 DatosFinales = [];
 
-for cont=1:64
+for cont=1:1
     if(cont ~= 63)
 
         %% Busco todos los nombre de las imagenes de la camX
@@ -22,6 +22,9 @@ for cont=1:64
         %% Porcentaje de reduccion de imagen
         rd = 0.4;
 
+        %% Utilizado para cuando salgamos de No disponible avanzamos numImagenes para calculo de fondo
+        salta = false;
+        
         %% Saco las plantillas de la camX
         nombre = split(string(fileNames(1,1)),'_');
         nomFormato = split(nombre(3),'.');
@@ -41,75 +44,99 @@ for cont=1:64
 
         %% Realizo un bucle por el numero de imagenes de la carpeta
         [filas, columnas] = size(fileNames);
+    
+        i = (numImagenes + 1);
+        
+        while (i <= columnas)
+            %% Capturo error por archivo corrupto
+            try
+                %% Selecciono la imagen a analizar
+                I = imread(string(fileNames(1,i)));
 
-        for i=(numImagenes + 1):columnas  
-            %% Selecciono la imagen a analizar
-            I = imread(string(fileNames(1,i)));
+                %% Relleno datos de la camara
+                nombre = split(string(fileNames(1,i)),'_');
+                datosCamara = [cam, nombre(1,1), nombre(2,1)];
 
-            %% Relleno datos de la camara
-            nombre = split(string(fileNames(1,i)),'_');
-            datosCamara = [cam, nombre(1,1), nombre(2,1)];
+                %% Compruebo si la camara esta disponible 
+                disponible = camDisponible(I);
 
-            %% Compruebo si la camara esta disponible 
-            disponible = camDisponible(I);
+                %% Si la camara esta disponible realizo todas las operaciones
+                if(disponible)  
+                    %% Si la anterior es no Disponible
+                    if (salta)
+                        i = i + numImagenes + 1;
+                        I = imread(string(fileNames(1,i)));
+                        nombre = split(string(fileNames(1,i)),'_');
+                        datosCamara = [cam, nombre(1,1), nombre(2,1)];
+                        salta = false;
+                    end
+                    %% Compruebo si tengo que redimensionar la imagen 
+                    [f c m] = size(I);
 
-            %% Si la camara esta disponible realizo todas las operaciones
-            if(disponible)  
-                %% Compruebo si tengo que redimensionar la imagen 
-                [f c m] = size(I);
-
-                if(f > 1000)
-                    resize = true;
-                    I = imresize(I,rd);
-                else
-                    resize = false;
-                end
-
-                %% Saco imagen de fondo
-                imagen = 1;
-                for contador = i-1:-1:i-numImagenes     
-                    if(resize)
-                        imagenStruct(imagen).image = imresize(imread(string(fileNames(1,contador))), rd);
+                    if(f > 1000)
+                        resize = true;
+                        I = imresize(I,rd);
                     else
-                        imagenStruct(imagen).image = imread(string(fileNames(1,contador)));
-                    end    
-                    imagenStruct(imagen).red = imagenStruct(imagen).image(:,:,1);
-                    imagenStruct(imagen).green = imagenStruct(imagen).image(:,:,2);
-                    imagenStruct(imagen).blue = imagenStruct(imagen).image(:,:,3);   
-                imagen = imagen + 1;
+                        resize = false;
+                    end
+
+                    %% Saco imagen de fondo
+                    imagen = 1;
+
+                    for contador = i-1:-1:i-numImagenes     
+                        if(resize)
+                            imagenStruct(imagen).image = imresize(imread(string(fileNames(1,contador))), rd);
+                        else
+                            imagenStruct(imagen).image = imread(string(fileNames(1,contador)));
+                        end       
+                        imagen = imagen + 1;
+                    end
+
+                    %% Creo la imagen de fondo
+                    ifondo = calculaFondo(imagenStruct, numImagenes);
+                    % imshow(ifondo)
+
+                    %% Utilizando plantilla extraida con roipoly
+                    [ocupacion] = getOcupacionA(plantilla, ifondo, I);
+
+                    %% Muestro resultados
+                    figure('WindowState','maximized');
+                    subplot(1,2,1), imshow(I);
+                    title("Imagen original " + ocupacion);
+                    subplot(1,2,2), imshow(ifondo);
+                    title("Fondo calculado");
+                    
+                    pause;
+                    close;
+
+                    %% Concateno resultados
+                    datosCamara = [datosCamara ocupacion];
+
+                %% Si la camara no esta disponible
+                else
+                    %% Concateno datos 'NO DISPONIBLE'
+                    datosCamara = [ datosCamara [ 'NO DISPONIBLE']]; 
+                    salta = true;
                 end
 
-                %% Creo la imagen de fondo
-                ifondo = calculaFondo(imagenStruct, numImagenes);
-                % imshow(ifondo)
-                
-                %% Utilizando plantilla extraida con roipoly
-                [ocupacion] = getOcupacionA(plantilla, ifondo, I);
+                %% Guardo datos extraidos
+                DatosFinales = [DatosFinales ; datosCamara];
 
-                %% Muestro resultados
-%                 figure('WindowState','maximized');
-%                 subplot(1,2,1), imshow(I);
-%                 title("Imagen original");
-%                 subplot(1,2,2), imshow(ifondo);
-%                 title("Fondo calculado");
-
-                %% Concateno resultados
-                datosCamara = [datosCamara ocupacion];
-
-            %% Si la camara no esta disponible
-            else
-                %% Concateno datos 'NO DISPONIBLE'
-                datosCamara = [ datosCamara [ 'NO DISPONIBLE']]; 
-            end
-
-            %% Guardo datos extraidos
-            DatosFinales = [DatosFinales ; datosCamara];
+                "camara " + cont
+                "imagen " + i + " de " + columnas
             
-            "camara " + cont
-            "imagen " + i + " de 50"
+            catch
+            
+            % Capturo el error de la lectura de imagenes
+            "Error imagen " + string(fileNames(1,i))
+            
+            end
+            
+            % Aumento iterador
+            i = i + 1;
             
         end
     end
- end
+end
 
-save ../Datos/Datos.mat DatosFinales
+%save ../Datos/Datos.mat DatosFinales

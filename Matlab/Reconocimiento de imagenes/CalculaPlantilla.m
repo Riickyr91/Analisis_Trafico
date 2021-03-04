@@ -38,10 +38,7 @@ for cont=1:64
             %% Saco imagen de fondo
             imagen = 1;  
             for contador = i-1:-1:i-numImagenes
-                imagenStruct(imagen).image = imread(string(fileNames(1,contador)));  
-                imagenStruct(imagen).red = imagenStruct(imagen).image(:,:,1);
-                imagenStruct(imagen).green = imagenStruct(imagen).image(:,:,2);
-                imagenStruct(imagen).blue = imagenStruct(imagen).image(:,:,3);   
+                imagenStruct(imagen).image = imread(string(fileNames(1,contador)));   
                 imagen = imagen + 1;
             end
 

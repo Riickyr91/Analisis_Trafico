@@ -34,8 +34,6 @@ function [plantillaElegida] = encuadrarImagen(I,ifondo, numPixeles)
 
         end
     end
-    
-%     imshow(plantillaElegida)
-    
+        
 end
 

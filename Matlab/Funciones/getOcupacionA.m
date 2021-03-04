@@ -5,71 +5,36 @@ function [M] = getOcupacionA(plantilla, ifondo, I);
     
     ocupacion = zeros(1,p);
     
+    diff = encuadrarImagen(I, ifondo, 5);
+    diffFiltrado = bwareaopen(diff,5);
+    
+    plantilla_Min = plantilla(5:f-5, 5:c-5, :);
+   
     for i = 1 : p
-        I_Plantilla = plantilla(:,:,i);
+        % Selecciono la plantilla
+        I_Plantilla = plantilla_Min(:,:,i);
         
-        R = uint8(I(:,:,1));
-        G = uint8(I(:,:,2));
-        B = uint8(I(:,:,3));
+        % Recorto la imagen resultante de la resta
+        I_Recortada = double(I_Plantilla & diffFiltrado);
         
-        Rf = uint8(ifondo(:,:,1));
-        Gf = uint8(ifondo(:,:,2));
-        Bf = uint8(ifondo(:,:,3));
+        [fila, columnas] = size(I_Recortada);
         
-        R(I_Plantilla == 0) = 0; 
-        G(I_Plantilla == 0) = 0; 
-        B(I_Plantilla == 0) = 0;
-        
-        Rf(I_Plantilla == 0) = 0; 
-        Gf(I_Plantilla == 0) = 0; 
-        Bf(I_Plantilla == 0) = 0;
-        
-        IRecortada = cat(3,R,G,B);
-        FRecortado = cat(3,Rf,Gf,Bf);
-        
-        o = FRecortado - IRecortada;
-        og = rgb2gray(o);
-        ob = og > 70;
-        
-        ocp = 0;
-        
-        [fila, columnas] = size(ob);
         intervalo = round(fila/10);             
         
-        for k=1:fila
-            for j=1:columnas
-                if(ob(k,j) == 1)
-                    posicion = round(k/intervalo);
-                    if(posicion == 0)
-                        ocp = ocp + 40;
-                    elseif(posicion == 1)
-                        ocp = ocp + 35;
-                    elseif(posicion == 2)    
-                        ocp = ocp + 30;
-                    elseif(posicion == 3)
-                        ocp = ocp + 25;
-                    elseif(posicion == 4)
-                        ocp = ocp + 20;
-                    elseif(posicion == 5)
-                        ocp = ocp + 15;
-                    elseif(posicion == 6)
-                        ocp = ocp + 12;
-                    elseif(posicion == 7)
-                        ocp = ocp + 9;
-                    elseif(posicion == 8)
-                        ocp = ocp + 7;
-                    elseif(posicion == 9)
-                        ocp = ocp + 5;
-                    else
-                        ocp = ocp + 1;                        
-                    end
-                end
-            end 
-        end
+        I_Recortada(1:intervalo,:) = I_Recortada(1:intervalo,:) * 50;
+        I_Recortada(intervalo + 1:2 * intervalo,:) = I_Recortada(intervalo + 1:2 * intervalo,:) * 40;
+        I_Recortada(2 * intervalo + 1:3 * intervalo,:) = I_Recortada(2 * intervalo + 1:3 * intervalo,:) * 30;
+        I_Recortada(3 * intervalo + 1:4 * intervalo,:) = I_Recortada(3 * intervalo + 1:4 * intervalo,:) * 25;
+        I_Recortada(4 * intervalo + 1:5 * intervalo,:) = I_Recortada(4 * intervalo + 1:5 * intervalo,:) * 20;
+        I_Recortada(5 * intervalo + 1:6 * intervalo,:) = I_Recortada(5 * intervalo + 1:6 * intervalo,:) * 15;
+        I_Recortada(6 * intervalo + 1:7 * intervalo,:) = I_Recortada(6 * intervalo + 1:7 * intervalo,:) * 12;
+        I_Recortada(7 * intervalo + 1:8 * intervalo,:) = I_Recortada(7 * intervalo + 1:8 * intervalo,:) * 9;
+        I_Recortada(8 * intervalo + 1:9 * intervalo,:) = I_Recortada(8 * intervalo + 1:9 * intervalo,:) * 7;
+        I_Recortada(9 * intervalo + 1:fila,:) = I_Recortada(9 * intervalo + 1:fila,:) * 5;
         
-        carretera = sum(I_Plantilla(:));
+        ocp = sum(I_Recortada(:));
                 
-        ocupacion(1,i) = 100 * ocp / carretera;
+        ocupacion(1,i) = (ocp * 100) / sum(I_Plantilla(:));
         
     end
     
