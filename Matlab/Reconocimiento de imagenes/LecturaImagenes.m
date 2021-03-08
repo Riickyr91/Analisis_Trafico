@@ -7,7 +7,7 @@ addpath(genpath('D:\Imagenes_TFG'));
 addpath('../Funciones');
 DatosFinales = [];
 
-for cont=1:1
+for cont=1:64
     if(cont ~= 63)
 
         %% Busco todos los nombre de las imagenes de la camX
@@ -100,14 +100,14 @@ for cont=1:1
                     [ocupacion] = getOcupacionA(plantilla, ifondo, I);
 
                     %% Muestro resultados
-                    figure('WindowState','maximized');
-                    subplot(1,2,1), imshow(I);
-                    title("Imagen original " + ocupacion);
-                    subplot(1,2,2), imshow(ifondo);
-                    title("Fondo calculado");
-                    
-                    pause;
-                    close;
+%                     figure('WindowState','maximized');
+%                     subplot(1,2,1), imshow(I);
+%                     title("Imagen original " + ocupacion);
+%                     subplot(1,2,2), imshow(ifondo);
+%                     title("Fondo calculado");
+%                     
+%                     pause;
+%                     close;
 
                     %% Concateno resultados
                     datosCamara = [datosCamara ocupacion];
@@ -139,4 +139,5 @@ for cont=1:1
     end
 end
 
-%save ../Datos/Datos.mat DatosFinales
+% save ../Datos/Datos2.mat DatosFinales
+% save("../Datos/Workspace.mat")
