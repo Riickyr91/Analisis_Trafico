@@ -7,6 +7,7 @@ addpath('../Datos');
 
 %% Leo los datos sin filtrar
 load('Datos.mat');
+% EXPORTAR A CSV writematrix(DatosFinales,'..\Datos\DatosCSV.csv')
 
 [f c] = size(DatosFinales);
 

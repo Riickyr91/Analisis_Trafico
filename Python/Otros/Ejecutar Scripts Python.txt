@@ -1,0 +1,1 @@
+https://es.stackoverflow.com/questions/107612/ejecutar-cadena-de-archivos-python

@@ -7,7 +7,7 @@ clc
 addpath(genpath('D:\Imagenes_TFG'));
 addpath('../Funciones');
 
-for cont=50:64 %cont=1:64 
+for cont=1:64 
     if(cont ~= 63)
 
         %% Busco todos los nombre de las imagenes de la camX 
