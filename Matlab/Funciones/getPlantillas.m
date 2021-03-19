@@ -17,6 +17,8 @@ function [output] = getPlantillas(cam)
         r = string(strcat(myPath,'\',fileNames(1,i)));   
         load(r);
         output(:,:,i) = I_Plantilla;
+        imshow(I_Plantilla);
+        pause
     end
 
 end
