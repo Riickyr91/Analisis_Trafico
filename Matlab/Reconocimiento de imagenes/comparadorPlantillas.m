@@ -6,7 +6,7 @@
  
  addpath(genpath('D:\Imagenes_TFG'));
  
- for i=1:64
+ for i=1:64 % No está calculada las plantillas automaticas de la cam 65 ni 66
      
      if(i ~= 63)
 

@@ -7,9 +7,10 @@ clc
 addpath(genpath('D:\Imagenes_TFG'));
 addpath('../Funciones');
 
-for cont=1:64 
+%for cont=1:66
+    cont = 66
     if(cont ~= 63)
-
+        
         %% Busco todos los nombre de las imagenes de la camX 
         cam = "cam" + int2str(cont);
         myPath = "D:\Imagenes_TFG\cam" + int2str(cont); 
@@ -78,4 +79,4 @@ for cont=1:64
             end
         end
     end
-end
+%end
