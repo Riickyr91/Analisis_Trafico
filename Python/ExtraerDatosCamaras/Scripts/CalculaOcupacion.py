@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[34]:
-
-
 import numpy as np
 import scipy as sp
 import matplotlib.pyplot as plt
@@ -28,51 +25,10 @@ import time
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-
-
-# ## Manejo de .CSV
-
-# In[35]:
-
-
-# Crear archivo Datos.csv
-def crearFichero():
-    myData = [["Cam", "Date", "Ocp"]]
-    myFile = open('Datos.csv', 'w', newline="")
-    with myFile:
-        writer = csv.writer(myFile)
-        writer.writerows(myData)
-
-
-# In[36]:
-
-
-# Obtiene los datos del archivo Datos.csv
-def obtieneFichero():
-    fichero = open("./Datos.csv", newline="")
-    lector = csv.reader(fichero)
-    rownum = 0;
-    datos = [];
-    for fila in lector:
-        datos.append(fila)
-    return datos
-
-
-# In[37]:
-
-
-# Guarda el archivo Datos en el fichero Datos.csv
-def guardarFichero(Datos):
-    myFile = open('./Datos.csv', 'w', newline="")
-    with myFile:
-        writer = csv.writer(myFile)
-        writer.writerows(Datos)
-
+# Para la conexion con el servidor
+import MySQLdb
 
 # ## Funciones Auxiliares
-
-# In[38]:
-
 
 # Obtiene las plantillas dada la camara por parámetro
 def getPlantillas(cam):
@@ -88,10 +44,6 @@ def getPlantillas(cam):
         plantillas = np.concatenate([plantillas, pltil2], axis = 2)
     return plantillas
 
-
-# In[39]:
-
-
 # Redimensiona la plantilla pasada por parametro
 def redimPlantillaUnica(planti):
     planti2 = np.concatenate([planti, planti], axis = 2)
@@ -102,10 +54,6 @@ def redimPlantillaUnica(planti):
     ArrayRed = np.array(imagenInicialRed)
     a = np.array_split(ArrayRed,3,axis=2)
     return np.array(a[0])
-
-
-# In[40]:
-
 
 # Redimensiona el conjunto de plantillas pasadas por parámetros
 def redimensionaPlantilla(plantillas):   
@@ -118,10 +66,6 @@ def redimensionaPlantilla(plantillas):
         plantillaFinal = np.concatenate([plantillaFinal, redimPlantillaUnica(plant)], axis = 2)
     return plantillaFinal
 
-
-# In[41]:
-
-
 # Visualiza plantillas pasadas por parámetro
 def visualizaPlantillas(plantillas):
     tam = plantillas.shape
@@ -130,20 +74,12 @@ def visualizaPlantillas(plantillas):
         plt.figure()
         plt.imshow(a[i][:][:])
 
-
-# In[42]:
-
-
 # Redimensiona la imagen pasada por parametro
 def redimensionaImagen(imagen):
     tam = (720, 576)
     iEs = Image.fromarray(imagen)
     iEsRed = iEs.resize(tam)
     return np.array(iEsRed)
-
-
-# In[43]:
-
 
 # True si la imagen pasada por parámetro es disponible
 def camDisponible(iEstudio):
@@ -163,9 +99,6 @@ def camDisponible(iEstudio):
     return disponible
 
 
-# In[44]:
-
-
 # Devuleve True si se puede calcular el fondo, en caso contrario, significa que tenemos una imagen NO DISPONIBLE
 def isFondoDisponible(cam, listImagenes):
     disponible = True
@@ -179,10 +112,6 @@ def isFondoDisponible(cam, listImagenes):
             encontrado = True
             disponible = False
     return disponible
-
-
-# In[45]:
-
 
 # Dada la cam y la lista de las imagenes, te calcula el fondo de ellas gracias a la mediana
 def calculaFondo(cam, listImagenes):
@@ -204,10 +133,6 @@ def calculaFondo(cam, listImagenes):
         asunto = " Revisar " + str.upper(cam)
         enviaCorreo(asunto, mensaje)
     return fondo
-
-
-# In[46]:
-
 
 # Dada las plantillas, la imagen de fondo y la imagen de estudio devuelve la ocupación de esta imagen de estudio
 def getOcupacion(plantillas, fondo, iEstudio):
@@ -251,10 +176,6 @@ def getOcupacion(plantillas, fondo, iEstudio):
 
     return np.amax(ocupacion[:])
 
-
-# In[47]:
-
-
 # Desplaza la imagen sobre la imagen de fondo para buscar el mejor resultado entre ellos
 def encuadraImagen(I, ifondo, numPixeles):
     tam = fondo.shape
@@ -274,40 +195,24 @@ def encuadraImagen(I, ifondo, numPixeles):
                 w = np.sum(res2[:])
     return plantillaElegida
 
-
-# In[48]:
-
-
 # Devuelve una imagen a color en una en blanco y negro
 def rgb2gray(rgb):
     return np.dot(rgb[...,:3], [0.2989, 0.5870, 0.1140])
-
-
-# In[49]:
-
 
 # Tic
 def tic():
     return time.time()
 
-
-# In[50]:
-
-
 # Toc
 def toc(t):
     print(time.time() - t)
 
-
-# In[51]:
-
-
 # Envia un correo electrónico 
 def enviaCorreo(asunto, mensaje):
     # Correo de acceso al servidor
-    MY_ADDRESS = "AnalisisCamarasSevilla@gmail.com"
+    MY_ADDRESS = "*********"
     # Password de acceso a la cuenta de email
-    PASSWORD = "Ricardo1991"
+    PASSWORD = "*********"
 
     # Configurar el servidor de correo
     s = smtplib.SMTP(host='smtp.gmail.com', port=587) # servidor y puerto
@@ -336,22 +241,26 @@ def enviaCorreo(asunto, mensaje):
 
 # ## Codigo
 
-# In[52]:
-
-
 # Para controlar el tiempo que tarda ( unos 122 segundos con 63 camaras)
 #t = tic()
 
-# Obtengo los datos del csv
-try :
-    datos = obtieneFichero()
-except:
-    crearFichero()
-    datos = obtieneFichero()
+# Conexion con el servidor
+db = MySQLdb.connect("localhost","*********","*********","tfg_camaras",charset='utf8')
+
+# Cursor para la base de datos
+cursor = db.cursor()
+
+# Creo las tablas si fueran necesario
+cursor.execute ("CREATE TABLE if not exists Datos(Camara TEXT, Date TEXT, Ocupacion TEXT)")
+cursor.execute ("CREATE TABLE if not exists Log(Camara TEXT, Date TEXT,Descripcion TEXT)")
+
+# Creo los inserts
+mySql_insert_Datos = """INSERT INTO Datos VALUES(%s,%s,%s)"""
+mySql_insert_Log = """INSERT INTO Log VALUES(%s,%s,%s)"""
 
 # Numero de imagenes necesarias para la imagen de fondo
 numImagenes = 9
-    
+
 for cont in range(1,67):
     if cont != 63:
         # Camara actual
@@ -359,7 +268,7 @@ for cont in range(1,67):
 
         # Listo las imagenes que hay en la carpeta
         carpeta = "./Datos/" + cam
-        listImagenes = os.listdir(carpeta)
+        listImagenes = sorted(os.listdir(carpeta))
 
         # Compruebo si hay imagenes suficientes para calcular el fondo
         if len(listImagenes) > numImagenes:
@@ -412,32 +321,28 @@ for cont in range(1,67):
                         # Calculo ocupacion
                         ocupacion = getOcupacion(plantillas, fondo, iEstudio)
 
-                        datoInsetar = [cam, str(fecha_Hora), str(ocupacion)]
                         # Inserto los datos nuevos
-                        datos.append(datoInsetar)
+                        recordDatos = (cam,str(fecha_Hora),str(ocupacion))
+                        cursor.execute(mySql_insert_Datos, recordDatos)
                     else:
-                        print("Fondo NO Disponible")
-                        datoInsetar = [cam, fecha_Hora, "Fondo NO Disponible"]
                         # Inserto los datos nuevos
-                        datos.append(datoInsetar)
+                        recordDatos = (cam,str(fecha_Hora),"Fondo NO Disponible")
+                        cursor.execute(mySql_insert_Datos, recordDatos)
+
                 else:
-                    print("Imagen No Disponible")
-                    datoInsetar = [cam, fecha_Hora, "Cam NO Disponible"]
                     # Inserto los datos nuevos
-                    datos.append(datoInsetar)
+                    recordDatos = (cam,str(fecha_Hora),"Cam NO Disponible")
+                    cursor.execute(mySql_insert_Datos, recordDatos)
             except:
                 mensaje = "Ha ocurrido un error inesperado en la ejecución del script"
                 asunto = " Revisar " + str.upper(cam)
                 enviaCorreo(asunto, mensaje)
-                print("Error en " + str(cam))
-        else:
-            print("No hay imagenes suficientes para crear el fondo")
+                recordLog = (cam,str(fecha_Hora),"Error")
+                cursor.execute(mySql_insert_Log, recordLog)
 
-# Guardo el fichero con los nuevos datos
-guardarFichero(datos)
+# Comitear y cerrar conexion
+db.commit()
+db.close()
 
 # Para controlar el tiempo que tarda ( unos 122 segundos con 63 camaras)
 #toc(t)
-
-
-# %%

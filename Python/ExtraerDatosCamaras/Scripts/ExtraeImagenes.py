@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[34]:
-
-
 # -*- coding: utf-8 -*-
 import requests
 from os.path import join
@@ -12,17 +9,10 @@ import datetime
 
 
 # ## Variables Globles
-
-# In[35]:
-
-
 DATOS = join(".","Datos")
 
 
 # ## Funciones Auxiliares
-
-# In[36]:
-
 
 # Extra la hora actual
 def extraer_hora():
@@ -30,10 +20,6 @@ def extraer_hora():
     ano = ("{0:02}{1:02}{2:02}".format(x.year,x.month,x.day))
     hora = ("{0:02}{1:02}".format(x.hour,x.minute))
     return ano + "_" + hora
-
-
-# In[37]:
-
 
 # Descarga la imagen de la camara X en la carpeta X
 def descarga_camara(numero):
@@ -49,14 +35,10 @@ def descarga_camara(numero):
     else:
         return False
 
-
-# In[38]:
-
-
 # Se asegura que sólo hay 10 imagenes en la carpeta
 def limpiaCarpeta(camara):
     carpeta = "./Datos/cam" + str(camara)
-    listImagenes = os.listdir(carpeta)
+    listImagenes = sorted(os.listdir(carpeta)) 
     imagenes = len(listImagenes)
     while imagenes > 10:
         os.remove("./Datos/cam" + str(camara) + "/" + listImagenes[0])
@@ -65,9 +47,6 @@ def limpiaCarpeta(camara):
 
 
 # ## Codigo
-
-# In[42]:
-
 
 for i in range(1,100):
     # Descarga la imagen en la carpeta
@@ -80,8 +59,6 @@ for i in range(1,100):
     else:
         limpiaCarpeta(i)
 
-
-# In[ ]:
 
 
 

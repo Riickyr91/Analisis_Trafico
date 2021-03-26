@@ -1,5 +1,0 @@
-- Instalar modulos requeridos "pip"
-https://programminghistorian.org/es/lecciones/instalar-modulos-python-pip
-
-- Programar tarea windows
-https://es.stackoverflow.com/questions/60531/c%C3%B3mo-ejecutar-un-script-python-a-una-determinada-hora-y-fecha-en-windows
