@@ -1,4 +1,0 @@
-# Automatizacion del script para que se ejecute cada 5 minutos
-
-crontab -e
-*/5 * * * * /"Ruta_donde_este"/Ejecuta.sh
